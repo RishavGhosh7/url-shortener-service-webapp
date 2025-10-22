@@ -1,31 +1,42 @@
-# URL Shortener API
+# URL Shortener with React
 
-A simple and efficient URL shortener service built with Node.js, Express.js, and MongoDB. This API allows you to create short URLs, track click analytics, and manage custom aliases.
+A modern URL shortener application built with React, JavaScript, Node.js, Express, and MongoDB.
 
 ## Features
 
-- ✅ **URL Shortening**: Convert long URLs into short, shareable links
-- ✅ **Custom Aliases**: Create custom short codes for your URLs
-- ✅ **Click Tracking**: Monitor how many times each short URL has been clicked
-- ✅ **Expiration Dates**: Set expiration dates for short URLs
-- ✅ **Analytics**: Get detailed statistics for each short URL
-- ✅ **Input Validation**: Comprehensive validation for all inputs
-- ✅ **Error Handling**: Proper error responses and status codes
-- ✅ **Web Interface**: Beautiful, responsive frontend with modern UI
-- ✅ **Real-time Analytics**: View click statistics and URL information
-- ✅ **Copy to Clipboard**: One-click copying of shortened URLs
+- **URL Shortening**: Convert long URLs into short, shareable links
+- **Custom Aliases**: Create custom short codes for your URLs
+- **Expiration Dates**: Set expiration dates for your shortened URLs
+- **Analytics**: View click statistics and analytics for your shortened URLs
+- **Modern UI**: Beautiful, responsive interface built with React
+- **JavaScript**: Clean, modern JavaScript with React hooks
 
 ## Tech Stack
 
-- **Backend**: Node.js + Express.js
-- **Database**: MongoDB with Mongoose ODM
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Validation**: express-validator
-- **Short Code Generation**: nanoid
-- **Environment**: dotenv
-- **UI Framework**: Custom CSS with Font Awesome icons
+### Frontend
 
-## Installation
+- React 18 with JavaScript
+- React Router for navigation
+- Axios for API calls
+- CSS3 with modern styling
+- Font Awesome icons
+
+### Backend
+
+- Node.js with Express
+- MongoDB with Mongoose
+- Express Validator for input validation
+- CORS enabled for cross-origin requests
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- MongoDB (local or cloud instance)
+- npm or yarn
+
+### Installation
 
 1. **Clone the repository**
 
@@ -37,265 +48,127 @@ A simple and efficient URL shortener service built with Node.js, Express.js, and
 2. **Install dependencies**
 
    ```bash
+   # Install root dependencies
    npm install
+
+   # Install React client dependencies
+   cd client
+   npm install
+   cd ..
    ```
 
 3. **Set up environment variables**
+
    Create a `.env` file in the root directory:
 
    ```env
-   PORT=3000
    MONGODB_URI=mongodb://localhost:27017/urlshortener
-   NODE_ENV=development
+   PORT=3000
    ```
 
-4. **Start MongoDB**
-   Make sure MongoDB is running on your system. You can use:
+   The React app will automatically use `http://localhost:3000/api` as the API URL.
 
-   - Local MongoDB installation
-   - MongoDB Atlas (cloud)
-   - Docker: `docker run -d -p 27017:27017 mongo`
+### Running the Application
 
-5. **Run the application**
+#### Development Mode (Recommended)
+
+Run both the backend server and React development server simultaneously:
+
+```bash
+npm run dev-full
+```
+
+This will start:
+
+- Backend server on `http://localhost:3000`
+- React development server on `http://localhost:3001`
+
+#### Production Mode
+
+1. **Build the React app**
 
    ```bash
-   # Development mode (with auto-restart)
-   npm run dev
+   npm run build
+   ```
 
-   # Production mode
+2. **Start the production server**
+   ```bash
    npm start
    ```
 
-The server will start on `http://localhost:3000`
+The application will be available at `http://localhost:3000`
 
-## Frontend Access
+#### Individual Commands
 
-Once the server is running, you can access the web interface at:
-
-- **Frontend**: `http://localhost:3000` (main page)
-- **API**: `http://localhost:3000/api` (API endpoints)
+- **Backend only**: `npm run dev`
+- **React client only**: `npm run client`
+- **Build React app**: `npm run build`
 
 ## API Endpoints
 
-### 1. Create Short URL
+- `POST /api/shorten` - Create a short URL
+- `GET /:shortCode` - Redirect to original URL
+- `GET /api/stats/:shortCode` - Get URL statistics
 
-**POST** `/api/shorten`
-
-Create a new short URL from a long URL.
-
-**Request Body:**
-
-```json
-{
-  "originalUrl": "https://www.example.com/very/long/url/path",
-  "customAlias": "my-custom-link", // Optional
-  "expiresAt": "2024-12-31T23:59:59.000Z" // Optional
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "originalUrl": "https://www.example.com/very/long/url/path",
-    "shortUrl": "http://localhost:3000/abc123",
-    "shortCode": "abc123",
-    "customAlias": false,
-    "expiresAt": null,
-    "createdAt": "2024-01-15T10:30:00.000Z"
-  }
-}
-```
-
-### 2. Redirect to Original URL
-
-**GET** `/:shortCode`
-
-Redirect to the original URL using the short code.
-
-**Example:** `GET http://localhost:3000/abc123`
-
-**Response:** 301 Redirect to the original URL
-
-### 3. Get URL Statistics
-
-**GET** `/api/stats/:shortCode`
-
-Get analytics and statistics for a short URL.
-
-**Example:** `GET http://localhost:3000/api/stats/abc123`
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "originalUrl": "https://www.example.com/very/long/url/path",
-    "shortCode": "abc123",
-    "customAlias": false,
-    "clicks": 42,
-    "createdAt": "2024-01-15T10:30:00.000Z",
-    "lastAccessedAt": "2024-01-15T15:45:00.000Z",
-    "expiresAt": null,
-    "isExpired": false
-  }
-}
-```
-
-### 4. Delete Short URL
-
-**DELETE** `/api/url/:shortCode`
-
-Delete a short URL and its associated data.
-
-**Example:** `DELETE http://localhost:3000/api/url/abc123`
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "message": "Short URL deleted successfully",
-  "data": {
-    "shortCode": "abc123",
-    "originalUrl": "https://www.example.com/very/long/url/path"
-  }
-}
-```
-
-## Usage Examples
-
-### Using cURL
-
-1. **Create a short URL:**
-
-   ```bash
-   curl -X POST http://localhost:3000/api/shorten \
-     -H "Content-Type: application/json" \
-     -d '{"originalUrl": "https://www.google.com"}'
-   ```
-
-2. **Create with custom alias:**
-
-   ```bash
-   curl -X POST http://localhost:3000/api/shorten \
-     -H "Content-Type: application/json" \
-     -d '{"originalUrl": "https://www.github.com", "customAlias": "github"}'
-   ```
-
-3. **Get statistics:**
-   ```bash
-   curl http://localhost:3000/api/stats/github
-   ```
-
-### Using JavaScript/Fetch
-
-```javascript
-// Create short URL
-const response = await fetch("http://localhost:3000/api/shorten", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    originalUrl: "https://www.example.com",
-    customAlias: "example",
-  }),
-});
-
-const data = await response.json();
-console.log(data.data.shortUrl); // http://localhost:3000/example
-```
-
-## Error Handling
-
-The API returns appropriate HTTP status codes and error messages:
-
-- **400 Bad Request**: Invalid input data
-- **404 Not Found**: Short URL not found
-- **409 Conflict**: Custom alias already exists
-- **410 Gone**: Short URL has expired
-- **500 Internal Server Error**: Server error
-
-**Error Response Format:**
-
-```json
-{
-  "error": "Error type",
-  "message": "Detailed error message",
-  "details": [] // Validation errors (if applicable)
-}
-```
-
-## Database Schema
-
-The URL collection stores the following fields:
-
-```javascript
-{
-  originalUrl: String,      // The original long URL
-  shortCode: String,        // Unique short code (4-10 chars)
-  customAlias: Boolean,     // Whether it's a custom alias
-  clicks: Number,           // Click count (default: 0)
-  createdAt: Date,          // Creation timestamp
-  expiresAt: Date,          // Expiration date (optional)
-  lastAccessedAt: Date      // Last click timestamp
-}
-```
-
-## Development
-
-### Project Structure
+## Project Structure
 
 ```
 url-shortener/
-├── src/
-│   ├── models/
-│   │   └── Url.js           # MongoDB schema
-│   ├── routes/
-│   │   └── url.routes.js    # API routes
-│   ├── controllers/
-│   │   └── url.controller.js # Business logic
-│   ├── middleware/
-│   │   └── validation.js     # Input validation
-│   └── server.js             # Entry point
-├── public/                  # Frontend files
-│   ├── css/
-│   │   └── style.css        # Main stylesheet
-│   ├── js/
-│   │   └── app.js           # Frontend JavaScript
-│   ├── images/
-│   │   └── favicon.ico      # Site favicon
-│   └── index.html           # Main HTML page
-├── .env                     # Environment variables
-├── .gitignore
-├── package.json
-├── plan.md                  # Implementation plan
-└── README.md
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   ├── App.tsx        # Main App component
+│   │   └── App.css        # Styles
+│   └── public/            # Static assets
+├── src/                   # Backend
+│   ├── controllers/       # Route controllers
+│   ├── middleware/        # Custom middleware
+│   ├── models/           # Database models
+│   ├── routes/           # API routes
+│   └── server.js         # Main server file
+└── package.json           # Root package.json
 ```
 
-### Adding New Features
+## Usage
 
-1. **New endpoints**: Add routes in `src/routes/url.routes.js`
-2. **Business logic**: Add controller functions in `src/controllers/url.controller.js`
-3. **Validation**: Add validation rules in `src/middleware/validation.js`
-4. **Database changes**: Update schema in `src/models/Url.js`
+1. **Shorten a URL**: Enter a long URL in the form and optionally add a custom alias or expiration date
+2. **View Results**: See your shortened URL with details like creation date and expiration
+3. **Copy URL**: Click the copy button to copy the shortened URL to your clipboard
+4. **View Analytics**: Click "View Analytics" to see click statistics and other metrics
+5. **Navigate**: Use the navigation buttons to move between different sections
+
+## Features in Detail
+
+### URL Shortening
+
+- Validates URLs before shortening
+- Generates random short codes if no custom alias is provided
+- Supports custom aliases (4-10 characters, alphanumeric with hyphens/underscores)
+- Optional expiration dates
+
+### Analytics
+
+- Click count tracking
+- Creation date display
+- Last accessed timestamp
+- Expiration status
+- Real-time data refresh
+
+### Responsive Design
+
+- Mobile-first approach
+- Works on all screen sizes
+- Touch-friendly interface
+- Modern gradient backgrounds and animations
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
 ## License
 
 This project is licensed under the ISC License.
-
-## Support
-
-If you encounter any issues or have questions, please open an issue on the repository.

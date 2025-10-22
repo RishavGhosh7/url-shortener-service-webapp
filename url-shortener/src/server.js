@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const urlRoutes = require("./routes/url.routes");
@@ -18,13 +19,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from public directory
-app.use(express.static("public"));
-
 // Routes
 app.use("/api", urlRoutes);
 
-// GET /:shortCode - Redirect to original URL
+// Root endpoint for development
+if (process.env.NODE_ENV !== "production") {
+  app.get("/", (req, res) => {
+    res.json({
+      message: "URL Shortener API",
+      version: "1.0.0",
+      endpoints: {
+        "POST /api/shorten": "Create a short URL",
+        "GET /:shortCode": "Redirect to original URL",
+        "GET /api/stats/:shortCode": "Get URL statistics",
+      },
+    });
+  });
+}
+
+// GET /:shortCode - Redirect to original URL (must be after /api routes)
 app.get(
   "/:shortCode",
   validateShortCode,
@@ -32,23 +45,15 @@ app.get(
   redirectToOriginal
 );
 
-// Root endpoint
-app.get("/", (req, res) => {
-  res.json({
-    message: "URL Shortener API",
-    version: "1.0.0",
-    endpoints: {
-      "POST /api/shorten": "Create a short URL",
-      "GET /:shortCode": "Redirect to original URL",
-      "GET /api/stats/:shortCode": "Get URL statistics",
-    },
-  });
-});
+// Serve static files from React build directory (production only)
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
-});
+  // Catch all handler: send back React's index.html file for client-side routing
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+  });
+}
 
 // Error handler
 app.use((err, req, res, next) => {
